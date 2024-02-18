@@ -8,8 +8,8 @@ export const Container = styled(RectButton)`
   justify-content: center;
   width: 100%;
   background: ${({ theme }: ThemeProps) => theme.color.primary};
-  border-radius: 27.5px;
   height: 55px;
+  border-radius: 10px;
 `;
 
 export const ButtonText = styled.Text<ThemeProps>`

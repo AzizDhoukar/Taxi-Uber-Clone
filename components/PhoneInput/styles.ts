@@ -5,7 +5,7 @@ import { ThemeProps } from '../../theme';
 export const Container = styled.View<ThemeProps>`
   flex-direction: row;
   align-items: center;
-  width: 100%;
+  width: 70%;
   height: 55px;
   border: 1px solid ${({ theme }) => theme.color.gray};
   border-radius: 45px;
@@ -20,6 +20,7 @@ export const Code = styled.Text<ThemeProps>`
 `;
 
 export const Input = styled.TextInput<ThemeProps>`
+  
   font-size: 18px;
   width: 100%;
   height: 100%;

@@ -8,7 +8,7 @@ import Button from '../../components/Button';
 import cabImg from '../../assets/cab.png';
 import * as S from './styles';
 
-const Home: React.FC = () => {
+function Home() {
   const navigation = useNavigation();
 
   return (

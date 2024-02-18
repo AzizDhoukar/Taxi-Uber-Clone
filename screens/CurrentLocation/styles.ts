@@ -16,11 +16,10 @@ export const Map = styled(MapView)`
 
 export const OptionsContainer = styled.View`
   position: absolute;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: start;
   bottom: 110px;
-  width: 80%;
-  height: 50px;
+  width: 90%;
 `;
 
 export const LeftOptions = styled.View`
@@ -38,6 +37,8 @@ export const WhereToContainer = styled.View<ThemeProps>`
   border-radius: 45px;
   padding: 0 23px;
 `;
+
+
 
 export const WhereToButton = styled(RectButton)`
   justify-content: center;

@@ -76,16 +76,15 @@ const Map: React.FC = () => {
       >
         <Marker coordinate={latLng} image={marker} />
       </S.Map>
-      <S.WhereToContainer>
-        <View>
-          <S.OptionsContainer>
-            <GestureHandlerRootView>
-              <MapButton icon={iconHome} />
-              <MapButton icon={iconHistory} />
-              <MapButton icon={iconCenter} onPress={centerMap} />
-            </GestureHandlerRootView>
-          </S.OptionsContainer>
-        </View>
+        <S.OptionsContainer>
+          <GestureHandlerRootView>
+            <MapButton icon={iconHome} />
+            <MapButton icon={iconHistory} />
+            <MapButton icon={iconCenter} onPress={centerMap} />
+          </GestureHandlerRootView>
+        </S.OptionsContainer>
+          
+        <S.WhereToContainer style={{width: '90%'}}>
         <GestureHandlerRootView>
           <S.WhereToButton
             onPress={() => navigation.navigate('SelectDestination')}>
