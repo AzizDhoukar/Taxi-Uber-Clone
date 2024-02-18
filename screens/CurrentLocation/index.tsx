@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -43,7 +43,7 @@ const Map: React.FC = () => {
       },
     );*/
     
-    setLatLng({ latitude: 12.935129, longitude: 43.935129 });
+    setLatLng({ latitude: 35.82676, longitude: 10.63805 });
   }, []);
 
   function centerMap() {
@@ -76,20 +76,19 @@ const Map: React.FC = () => {
       >
         <Marker coordinate={latLng} image={marker} />
       </S.Map>
-      <S.OptionsContainer>
-        <GestureHandlerRootView>
-          <S.LeftOptions>
+      <S.WhereToContainer>
+        <View>
+          <S.OptionsContainer>
+            <GestureHandlerRootView>
               <MapButton icon={iconHome} />
               <MapButton icon={iconHistory} />
-          </S.LeftOptions>
-          <MapButton icon={iconCenter} noMargin onPress={centerMap} />
-        </GestureHandlerRootView>
-      </S.OptionsContainer>
-      <S.WhereToContainer>
+              <MapButton icon={iconCenter} onPress={centerMap} />
+            </GestureHandlerRootView>
+          </S.OptionsContainer>
+        </View>
         <GestureHandlerRootView>
           <S.WhereToButton
-            onPress={() => navigation.navigate('SelectDestination')}
-          >
+            onPress={() => navigation.navigate('SelectDestination')}>
             <S.From>From: Wilson Terrace 219 W</S.From>
             <S.ToContainer>
               <S.GreenDot />

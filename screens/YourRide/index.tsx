@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
-import StarRating from 'react-native-star-rating'; //this needs to be changed
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 import Header from '../../components/Header';
 import Button from '../../components/Button';
 
 import avatar from '../../assets/avatar.png';
-import theme from '../../theme';
 
 import * as S from './styles';
 
@@ -30,17 +27,6 @@ const YourRide: React.FC = () => {
               </S.AvatarContainer>
               <S.DriverName>Michael Douglas</S.DriverName>
               <S.Description>Rate your driver</S.Description>
-              <StarRating
-                disabled={false}
-                maxStars={5}
-                rating={rating}
-                selectedStar={setRating}
-                fullStarColor={theme.color.secondary}
-                emptyStar="star"
-                emptyStarColor={theme.color.gray}
-                starSize={hp('4%')}
-                containerStyle={{ width: '50%', paddingTop: 8 }}
-              />
 
               <S.MessageInput
                 multiline

@@ -31,7 +31,7 @@ export const WhereToContainer = styled.View<ThemeProps>`
   position: absolute;
   justify-content: center;
   bottom: 45px;
-  width: 80%;
+  width: 100%;
   height: 55px;
   border: 1px solid ${({ theme }) => theme.color.gray};
   background: #fff;

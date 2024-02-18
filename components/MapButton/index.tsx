@@ -6,20 +6,11 @@ import * as S from './styles';
 
 export interface IMapButtonProps extends RectButtonProperties {
   icon: ImageURISource;
-  noMargin?: boolean;
-  transparent?: boolean;
 }
 
-const MapButton: React.FC<IMapButtonProps> = ({
-  icon,
-  noMargin = false,
-  transparent,
-  ...props
-}) => {
+const MapButton: React.FC<IMapButtonProps> = ({icon, ...props}) => {
   return (
     <S.Container
-      noMargin={noMargin}
-      transparent={transparent}
       {...props}
       style={{
         elevation: 10,
@@ -27,6 +18,8 @@ const MapButton: React.FC<IMapButtonProps> = ({
         shadowOffset: { width: 0, height: 5 },
         shadowOpacity: 0.34,
         shadowRadius: 6.27,
+        borderRadius: 20,
+        marginBottom: 5,
       }}
     >
       <S.Icon source={icon} />
