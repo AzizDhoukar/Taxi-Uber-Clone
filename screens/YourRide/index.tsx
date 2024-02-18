@@ -34,7 +34,7 @@ const YourRide: React.FC = () => {
                 placeholder="Your message..."
               />
             </S.RatingContainer>
-            <Button>Done</Button>
+            <Button style={{ paddingHorizontal: 20 }}>Done</Button>
           </S.DriverContainer>
         </S.InnerContainer>
       </S.Container>

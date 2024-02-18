@@ -53,7 +53,7 @@ const SelectDestination: React.FC = () => {
           <S.To>Destination</S.To>
         </S.FromTo>
       </S.TopContainer>
-      <S.Shadow />
+      <S.Shadow colors={['#000000', '#FFFFFF']} />
       <S.HistoryList
         data={data}
         renderItem={renderItem}
