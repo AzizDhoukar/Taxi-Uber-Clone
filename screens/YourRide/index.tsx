@@ -22,10 +22,6 @@ const YourRide: React.FC = () => {
           </S.InfoContainer>
           <S.DriverContainer>
             <S.RatingContainer>
-              <S.AvatarContainer>
-                <S.Avatar source={avatar} />
-              </S.AvatarContainer>
-              <S.DriverName>Michael Douglas</S.DriverName>
               <S.Description>Rate your driver</S.Description>
 
               <S.MessageInput

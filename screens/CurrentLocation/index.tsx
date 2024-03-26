@@ -3,6 +3,7 @@ import { Alert, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Geolocation from '@react-native-community/geolocation';
 
 import MapButton from '../../components/MapButton';
 
@@ -21,15 +22,15 @@ interface ILatLng {
 
 const Map: React.FC = () => {
   const [latLng, setLatLng] = useState<ILatLng>({
-    latitude: -19.916483,
-    longitude: -43.935129,
+    latitude: 35.82676,
+    longitude: 10.63805,
   });
 
   const navigation = useNavigation();
   let mapRef: MapView | null = null;
 
   useEffect(() => {/*
-    navigator.geolocation.getCurrentPosition(
+    Geolocation.getCurrentPosition(
       ({ coords: { latitude, longitude } }) => {
         setLatLng({ latitude, longitude });
       },
@@ -76,13 +77,13 @@ const Map: React.FC = () => {
       >
         <Marker coordinate={latLng} image={marker} />
       </S.Map>
-        <S.OptionsContainer>
-          <GestureHandlerRootView>
-            <MapButton icon={iconHome} />
-            <MapButton icon={iconHistory} />
-            <MapButton icon={iconCenter} onPress={centerMap} />
-          </GestureHandlerRootView>
-        </S.OptionsContainer>
+      <S.OptionsContainer>
+        <GestureHandlerRootView>
+          <MapButton icon={iconHome} />
+          <MapButton icon={iconHistory} />
+          <MapButton icon={iconCenter} onPress={centerMap} />
+        </GestureHandlerRootView>
+      </S.OptionsContainer>
           
         <S.WhereToContainer style={{width: '90%'}}>
         <GestureHandlerRootView>

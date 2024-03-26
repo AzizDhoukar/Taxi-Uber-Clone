@@ -6,7 +6,7 @@ import { ThemeProps } from '../../theme';
 
 export const Container = styled.View`
   flex: 1;
-  align-items: center;
+  alignItems : center;
 `;
 
 export const Map = styled(MapView)`
@@ -17,9 +17,9 @@ export const Map = styled(MapView)`
 export const OptionsContainer = styled.View`
   position: absolute;
   flex-direction: column;
-  justify-content: start;
+  alignSelf : flex-start;
   bottom: 110px;
-  width: 90%;
+  padding-left: 20px;
 `;
 
 export const LeftOptions = styled.View`
