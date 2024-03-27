@@ -3,9 +3,10 @@ import { Alert, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import Geolocation from '@react-native-community/geolocation';
+import * as Location from 'expo-location';
 
 import MapButton from '../../components/MapButton';
+import Button from '../../components/Button';
 
 import iconHome from '../../assets/home.png';
 import iconHistory from '../../assets/history.png';
@@ -29,22 +30,27 @@ const Map: React.FC = () => {
   const navigation = useNavigation();
   let mapRef: MapView | null = null;
 
-  useEffect(() => {/*
-    Geolocation.getCurrentPosition(
-      ({ coords: { latitude, longitude } }) => {
-        setLatLng({ latitude, longitude });
-      },
-      () => {
-        Alert.alert('Error', 'Failed to get your current location');
-      },
-      {
-        timeout: 2000,
-        enableHighAccuracy: true,
-        maximumAge: 1000,
-      },
-    );*/
-    
-    setLatLng({ latitude: 35.82676, longitude: 10.63805 });
+  const askPermission = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.log('Permission to access location was denied');
+      return;
+    }
+    // Permission granted, you can now access location
+  };
+  const fetchLocation = async () => {
+    let currentLocation = await Location.getCurrentPositionAsync({});
+    let latitude = currentLocation.coords.latitude;
+    let longitude = currentLocation.coords.longitude;
+    setLatLng({ latitude, longitude })
+
+    console.log(JSON.stringify(currentLocation));
+  };
+
+  useEffect(() => {
+    askPermission();
+    fetchLocation();
+    //setLatLng({ latitude: 35.82676, longitude: 10.63805 });
   }, []);
 
   function centerMap() {
@@ -77,6 +83,19 @@ const Map: React.FC = () => {
       >
         <Marker coordinate={latLng} image={marker} />
       </S.Map>
+
+      <S.WhereToContainer >
+            <S.From>From: curent position</S.From>
+            <S.ToContainer>
+              <S.GreenDot />
+              <S.To placeholder='Where to?'></S.To>
+            </S.ToContainer>
+      </S.WhereToContainer>
+
+      <S.BottomContainer>
+        <Button onPress={() => navigation.navigate('Request')}>Request Taxi</Button>
+      </S.BottomContainer>
+      
       <S.OptionsContainer>
         <GestureHandlerRootView>
           <MapButton icon={iconHome} />
@@ -85,18 +104,6 @@ const Map: React.FC = () => {
         </GestureHandlerRootView>
       </S.OptionsContainer>
           
-        <S.WhereToContainer style={{width: '90%'}}>
-        <GestureHandlerRootView>
-          <S.WhereToButton
-            onPress={() => navigation.navigate('SelectDestination')}>
-            <S.From>From: Wilson Terrace 219 W</S.From>
-            <S.ToContainer>
-              <S.GreenDot />
-              <S.To>Where to?</S.To>
-            </S.ToContainer>
-          </S.WhereToButton>
-        </GestureHandlerRootView>
-      </S.WhereToContainer>
     </S.Container>
   );
 };

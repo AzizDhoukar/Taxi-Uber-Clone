@@ -17,9 +17,9 @@ export const Map = styled(MapView)`
 export const OptionsContainer = styled.View`
   position: absolute;
   flex-direction: column;
-  alignSelf : flex-start;
-  bottom: 110px;
-  padding-left: 20px;
+  alignSelf : flex-end;
+  bottom: 40px;
+  padding-right: 20px;
 `;
 
 export const LeftOptions = styled.View`
@@ -29,13 +29,21 @@ export const LeftOptions = styled.View`
 export const WhereToContainer = styled.View<ThemeProps>`
   position: absolute;
   justify-content: center;
-  bottom: 45px;
-  width: 100%;
+  top: 45px;
+  width: 90%;
   height: 55px;
   border: 1px solid ${({ theme }) => theme.color.gray};
   background: #fff;
   border-radius: 45px;
   padding: 0 23px;
+`;
+
+export const BottomContainer = styled.View`
+  position: absolute;
+  flex-direction: column;
+  alignSelf : flex-end;
+  bottom: 45px;
+  right: 90px;
 `;
 
 
@@ -65,7 +73,7 @@ export const GreenDot = styled.View<ThemeProps>`
   margin-right: 10px;
 `;
 
-export const To = styled.Text<ThemeProps>`
+export const To = styled.TextInput<ThemeProps>`
   font-family: ${({ theme }) => theme.font.regular};
   font-size: 18px;
   color: ${({ theme }) => theme.color.primary};
