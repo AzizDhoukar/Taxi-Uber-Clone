@@ -36,9 +36,15 @@ const Verification: React.FC = () => {
           <S.Description bold> +994 555 66 77</S.Description>
         </S.Description>
         <S.CodeContainer>
-          <CodeInput onChangeText={() => focusNext(codeRef2)} autoFocus />
-          <CodeInput onChangeText={() => focusNext(codeRef3)} ref={codeRef2} />
-          <CodeInput onChangeText={() => focusNext(codeRef4)} ref={codeRef3} />
+          <CodeInput autoFocus onChangeText={() => focusNext(codeRef2)} />
+          <CodeInput ref={codeRef2} onChangeText={() => focusNext(codeRef3)} />
+          <CodeInput ref={codeRef3} onChangeText={() => focusNext(codeRef4)} />
+          <CodeInput
+            returnKeyType="send"
+            ref={codeRef4}
+            onChangeText={() => navigation.navigate('CurrentLocation')}
+            onSubmitEditing={() => navigation.navigate('CurrentLocation')}
+          />
         </S.CodeContainer>
       </S.InnerContainer>
     </S.Container>

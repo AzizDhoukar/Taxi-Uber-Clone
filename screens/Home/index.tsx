@@ -23,9 +23,15 @@ function Home() {
           <S.TitleBold>Wasalni</S.TitleBold>
         </S.Title>
         <PhoneInput placeholder="55 652 435" />
-        <Button onPress={() => navigation.navigate('CurrentLocation')}>
-          Get Started
-        </Button>
+        <S.ButtonContainer>
+          <Button onPress={() => navigation.navigate('Verification')}>
+            Get Started
+          </Button>
+
+          <Button onPress={() => navigation.navigate('DriverLocation')}>
+            Login as Driver
+          </Button>
+        </S.ButtonContainer>
       </S.BottomArea>
     </S.Container>
   );

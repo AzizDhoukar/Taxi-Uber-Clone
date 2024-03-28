@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, View } from 'react-native';
+import { Alert, View, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -11,7 +11,7 @@ import Button from '../../components/Button';
 import iconHome from '../../assets/home.png';
 import iconHistory from '../../assets/history.png';
 import iconCenter from '../../assets/map_center.png';
-import marker from '../../assets/marker.png';
+import cab from '../../assets/cab.png';
 import customMapStyle from '../../mapstyle.json';
 
 import * as S from './styles';
@@ -21,11 +21,13 @@ interface ILatLng {
   longitude: number;
 }
 
-const Map: React.FC = () => {
+const DriverMap: React.FC = () => {
   const [latLng, setLatLng] = useState<ILatLng>({
     latitude: 35.82676,
     longitude: 10.63805,
   });
+
+  const [SharingLocation, setSharingLocation] = useState(false);
 
   const navigation = useNavigation();
   let mapRef: MapView | null = null;
@@ -45,6 +47,31 @@ const Map: React.FC = () => {
     setLatLng({ latitude, longitude })
 
     console.log(JSON.stringify(currentLocation));
+  };
+
+  const options = {
+    accuracy: Location.Accuracy.High,
+    timeInterval: 1000, // Update interval in milliseconds (1 second)
+    distanceInterval: 10, // Minimum distance in meters that must be traveled for an update
+  }; 
+
+  const subscribeToLocationUpdates = async () => {
+    setSharingLocation(true);
+    try {
+      const subscription = await Location.watchPositionAsync(options, (location) => {
+      let latitude = location.coords.latitude;
+      let longitude = location.coords.longitude;
+      setLatLng({ latitude, longitude })
+      console.log(JSON.stringify(location.coords)); 
+      
+      //TO DO: Send location to server
+
+      });
+      // To stop receiving updates, you can call remove() on the subscription object.
+      // subscription.remove();
+    } catch (error) {
+      console.error('Error subscribing to location updates:', error);
+    }
   };
 
   useEffect(() => {
@@ -81,20 +108,10 @@ const Map: React.FC = () => {
         showsBuildings={false}
         customMapStyle={customMapStyle}
       >
-        <Marker coordinate={latLng} image={marker} tracksViewChanges={false}/>
+        <Marker coordinate={latLng} tracksViewChanges={false}>
+          <Image source={cab} style={{ height: 50, width: 50 }} resizeMode="contain" />
+        </Marker>
       </S.Map>
-
-      <S.WhereToContainer >
-            <S.From>From: curent position</S.From>
-            <S.ToContainer>
-              <S.GreenDot />
-              <S.To placeholder='Where to?'></S.To>
-            </S.ToContainer>
-      </S.WhereToContainer>
-
-      <S.BottomContainer>
-        <Button onPress={() => navigation.navigate('Request')}>Request Taxi</Button>
-      </S.BottomContainer>
 
       <S.OptionsContainer>
         <GestureHandlerRootView>
@@ -103,9 +120,16 @@ const Map: React.FC = () => {
           <MapButton icon={iconCenter} onPress={centerMap} />
         </GestureHandlerRootView>
       </S.OptionsContainer>
-          
+      
+      <S.BottomContainer>
+      {SharingLocation ? (
+        <Button onPress={() => setSharingLocation(false)}>Stop Working</Button>
+      ) : (
+        <Button onPress={() => subscribeToLocationUpdates()}>Start Working</Button>
+      )}
+      </S.BottomContainer>
     </S.Container>
   );
 };
 
-export default Map;
+export default DriverMap;

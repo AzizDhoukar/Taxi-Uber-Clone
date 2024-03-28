@@ -18,7 +18,7 @@ import CurrentLocation from './screens/CurrentLocation';
 import SelectDestination from './screens/SelectDestination';
 import Request from './screens/Request';
 import YourRide from './screens/YourRide';
-import { View } from 'react-native';
+import DriverLocation from './screens/DriverLocation';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,8 +40,9 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Home" component={Home} />
-          <Stack.Screen name="CurrentLocation" component={CurrentLocation} />
           <Stack.Screen name="Verification" component={Verification} />
+          <Stack.Screen name="CurrentLocation" component={CurrentLocation} />
+          <Stack.Screen name="DriverLocation" component={DriverLocation} />
           <Stack.Screen name="SelectDestination" component={SelectDestination} />
           <Stack.Screen name="Request" component={Request} />
           <Stack.Screen name="YourRide" component={YourRide} />

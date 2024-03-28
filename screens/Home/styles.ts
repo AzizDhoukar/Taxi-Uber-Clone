@@ -47,3 +47,9 @@ export const TitleBold = styled.Text<ThemeProps>`
   font-size: 30px;
   color: ${({ theme }) => theme.color.primary};
 `;
+
+export const ButtonContainer = styled.View`
+  flex-direction: row;
+  justifyContent: space-between;
+  width: 80%;
+`;
