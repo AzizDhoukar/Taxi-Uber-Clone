@@ -4,6 +4,8 @@ import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
 
 import MapButton from '../../components/MapButton';
 import Button from '../../components/Button';
@@ -29,6 +31,21 @@ const DriverMap: React.FC = () => {
 
   const [SharingLocation, setSharingLocation] = useState(false);
 
+  // const connect = () => {
+  //   const socket  = new WebSocket('http://localhost:8080/websocket');
+    
+  //   socket.onopen = () => {      // connection opened
+  //     socket.send('connected to driver'); // send a message
+  //   };
+  //   const client = Stomp.over(socket);
+  //   client.connect({}, (frame) => {
+  //     console.log('Connected: ' + frame);
+  //     client.subscribe('/track/client', (clientLocation) => {//clintLocation is the call back from the server
+  //       console.log(JSON.parse(clientLocation.body));
+  //     });
+  //   });
+  // };
+
   const navigation = useNavigation();
   let mapRef: MapView | null = null;
 
@@ -40,6 +57,7 @@ const DriverMap: React.FC = () => {
     }
     // Permission granted, you can now access location
   };
+  
   const fetchLocation = async () => {
     let currentLocation = await Location.getCurrentPositionAsync({});
     let latitude = currentLocation.coords.latitude;
@@ -62,7 +80,7 @@ const DriverMap: React.FC = () => {
       let latitude = location.coords.latitude;
       let longitude = location.coords.longitude;
       setLatLng({ latitude, longitude })
-      console.log(JSON.stringify(location.coords)); 
+      console.log('new location' + JSON.stringify(location.coords)); 
       
       //TO DO: Send location to server
 
@@ -77,6 +95,7 @@ const DriverMap: React.FC = () => {
   useEffect(() => {
     askPermission();
     fetchLocation();
+    //connect();
     //setLatLng({ latitude: 35.82676, longitude: 10.63805 });
   }, []);
 
