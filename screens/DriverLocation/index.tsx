@@ -4,6 +4,8 @@ import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
+import { Stomp, CompatClient, Client, Versions } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 import MapButton from '../../components/MapButton';
 import Button from '../../components/Button';
@@ -28,21 +30,46 @@ const DriverMap: React.FC = () => {
   });
 
   const [SharingLocation, setSharingLocation] = useState(false);
-  const [socket, setSocket] = useState<WebSocket>();
+  const [client, setClient] = useState<Client>();
 
   const connect = () => {
     console.log('connecting')
-    const socket  = new WebSocket('ws://localhost:8080/driverLocation'); //wss://echo.websocket.org  for testing
-    setSocket(socket);
+    // const socket  = new WebSocket('ws://localhost:8080/driverLocation'); //wss://echo.websocket.org  for testing
+    // setSocket(socket);
+    // socket.onopen = () => { 
+    //   console.log('WebSocket connection established (from driver)');
+    // };
+    // socket.onerror = (error) => {
+    //   console.log('WebSocket error ' , error);
+    // };
 
-    socket.onopen = () => { 
-      console.log('WebSocket connection established (from driver)');
+    const client = new Client();
+    setClient(client);
+    client.brokerURL = 'ws://localhost:8080/clientLocation';
+    client.stompVersions = new Versions(['1.2', '1.1', '1.0']);
+    
+    client.onConnect = (frame) => {
+      console.log('Connected to STOMP broker');
+      
+      const subscription = client.subscribe('/app/track', (message) => { // subscribe to /track/client or driver
+        console.log('Received message:', message.body);
+        const receivedMessage = JSON.parse(message.body);
+      })
+    }; 
+    
+    client.activate();
+
+    client.onDisconnect = (frame) => {
+      console.log('Disconnected from STOMP broker');
     };
-    socket.onerror = (error) => {
-      console.log('WebSocket error ' , error);
+    client.onStompError = (frame) => {
+      console.error('STOMP protocol error:', frame.body);
+    };  
+    client.debug = (str) => {
+      console.log(str);
     };
   };
-
+  
   const navigation = useNavigation();
   let mapRef: MapView | null = null;
 
@@ -61,7 +88,7 @@ const DriverMap: React.FC = () => {
     let longitude = currentLocation.coords.longitude;
     setLatLng({ latitude, longitude })
 
-    console.log('fetch location' + JSON.stringify(currentLocation));
+    console.log('fetch location, timestamp = ' + JSON.stringify(currentLocation.timestamp));
   };
 
   const options = {
@@ -77,13 +104,13 @@ const DriverMap: React.FC = () => {
     let latitude = location.coords.latitude;
     let longitude = location.coords.longitude;
     setLatLng({ latitude, longitude })
-    console.log('new location in subscribeToLocationUpdates ' + JSON.stringify(location.coords)); 
+    console.log('new location from subscribeToLocationUpdates, timestamp = ' + JSON.stringify(location.timestamp)); 
     
     //TO DO: Send location to server
     //socket.send(JSON.stringify(location.coords));
-    socket.onerror = (error) => {
-      console.log('WebSocket error in subscribeToLocationUpdates ' , error);
-    };
+    // socket.onerror = (error) => {
+    //   console.log('WebSocket error in subscribeToLocationUpdates ' , error);
+    // };
 
     }); 
     // To stop receiving updates, you can call remove() on the subscription object.
