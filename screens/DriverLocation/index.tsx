@@ -4,8 +4,6 @@ import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
-import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
 
 import MapButton from '../../components/MapButton';
 import Button from '../../components/Button';
@@ -30,21 +28,20 @@ const DriverMap: React.FC = () => {
   });
 
   const [SharingLocation, setSharingLocation] = useState(false);
+  const [socket, setSocket] = useState<WebSocket>();
 
-  // const connect = () => {
-  //   const socket  = new WebSocket('http://localhost:8080/websocket');
-    
-  //   socket.onopen = () => {      // connection opened
-  //     socket.send('connected to driver'); // send a message
-  //   };
-  //   const client = Stomp.over(socket);
-  //   client.connect({}, (frame) => {
-  //     console.log('Connected: ' + frame);
-  //     client.subscribe('/track/client', (clientLocation) => {//clintLocation is the call back from the server
-  //       console.log(JSON.parse(clientLocation.body));
-  //     });
-  //   });
-  // };
+  const connect = () => {
+    console.log('connecting')
+    const socket  = new WebSocket('ws://localhost:8080/driverLocation'); //wss://echo.websocket.org  for testing
+    setSocket(socket);
+
+    socket.onopen = () => { 
+      console.log('WebSocket connection established (from driver)');
+    };
+    socket.onerror = (error) => {
+      console.log('WebSocket error ' , error);
+    };
+  };
 
   const navigation = useNavigation();
   let mapRef: MapView | null = null;
@@ -57,14 +54,14 @@ const DriverMap: React.FC = () => {
     }
     // Permission granted, you can now access location
   };
-  
+
   const fetchLocation = async () => {
     let currentLocation = await Location.getCurrentPositionAsync({});
     let latitude = currentLocation.coords.latitude;
     let longitude = currentLocation.coords.longitude;
     setLatLng({ latitude, longitude })
 
-    console.log(JSON.stringify(currentLocation));
+    console.log('fetch location' + JSON.stringify(currentLocation));
   };
 
   const options = {
@@ -75,27 +72,28 @@ const DriverMap: React.FC = () => {
 
   const subscribeToLocationUpdates = async () => {
     setSharingLocation(true);
-    try {
-      const subscription = await Location.watchPositionAsync(options, (location) => {
-      let latitude = location.coords.latitude;
-      let longitude = location.coords.longitude;
-      setLatLng({ latitude, longitude })
-      console.log('new location' + JSON.stringify(location.coords)); 
-      
-      //TO DO: Send location to server
 
-      });
-      // To stop receiving updates, you can call remove() on the subscription object.
-      // subscription.remove();
-    } catch (error) {
-      console.error('Error subscribing to location updates:', error);
-    }
+    const subscription = await Location.watchPositionAsync(options, (location) => {
+    let latitude = location.coords.latitude;
+    let longitude = location.coords.longitude;
+    setLatLng({ latitude, longitude })
+    console.log('new location in subscribeToLocationUpdates ' + JSON.stringify(location.coords)); 
+    
+    //TO DO: Send location to server
+    //socket.send(JSON.stringify(location.coords));
+    socket.onerror = (error) => {
+      console.log('WebSocket error in subscribeToLocationUpdates ' , error);
+    };
+
+    }); 
+    // To stop receiving updates, you can call remove() on the subscription object.
+    // subscription.remove();
   };
 
   useEffect(() => {
     askPermission();
     fetchLocation();
-    //connect();
+    connect();
     //setLatLng({ latitude: 35.82676, longitude: 10.63805 });
   }, []);
 
@@ -142,7 +140,7 @@ const DriverMap: React.FC = () => {
       
       <S.BottomContainer>
       {SharingLocation ? (
-        <Button onPress={() => setSharingLocation(false)}>Stop Working</Button>
+        <Button onPress={() => {setSharingLocation(false); console.log('sharing = false')}}>Stop Working</Button>
       ) : (
         <Button onPress={() => subscribeToLocationUpdates()}>Start Working</Button>
       )}
