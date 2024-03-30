@@ -42,21 +42,16 @@ const DriverMap: React.FC = () => {
     // socket.onerror = (error) => {
     //   console.log('WebSocket error ' , error);
     // };
-
-    const client = new Client();
-    setClient(client);
-    client.brokerURL = 'ws://localhost:8080/clientLocation';
-    client.stompVersions = new Versions(['1.2', '1.1', '1.0']);
-    
-    client.onConnect = (frame) => {
-      console.log('Connected to STOMP broker');
-      
-      const subscription = client.subscribe('/app/track', (message) => { // subscribe to /track/client or driver
-        console.log('Received message:', message.body);
-        const receivedMessage = JSON.parse(message.body);
-      })
-    }; 
-    
+    const client = new Client({ 
+      brokerURL: 'ws://192.169.0.4:8080/clientLocation',
+      onConnect: () => {
+        console.log('Connected to STOMP broker');
+        client.subscribe('/app/track/client', message =>
+          console.log(`Received: ${message.body}`)
+        );
+        client.publish({ destination: '/app/track/client', body: 'First Message' });
+      },
+    });
     client.activate();
 
     client.onDisconnect = (frame) => {
