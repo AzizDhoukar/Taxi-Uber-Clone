@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
+import { Stomp, CompatClient, Client } from '@stomp/stompjs';
 import axios from 'axios';
 
 import MapButton from '../../components/MapButton';
@@ -16,23 +16,26 @@ import marker from '../../assets/marker.png';
 import customMapStyle from '../../mapstyle.json';
 
 import * as S from './styles';
+import SockJS from 'sockjs-client';
 
 interface ILatLng {
   latitude: number;
   longitude: number;
 }
-const [user, setUser] = useState({
-  id: 1,
-  name: 'John Doe',
-  phone: '1234567890',
-  lat: 35.82676,
-  lon: 10.63805
-});
+
 
 const Map: React.FC = () => {
   const [latLng, setLatLng] = useState<ILatLng>({
     latitude: 35.82676,
     longitude: 10.63805,
+  });
+
+  const [drivers, setDrivers] = useState([{id: 1, name: 'driver1', phone: '1234567890', lat: 35.82676, lon: 10.63805}, {id: 2, name: 'driver2', phone: '1234567890', lat: 35.82676, lon: 10.63805}, {id: 3, name: 'driver3', phone: '1234567890', lat: 35.82676, lon: 10.63805}]);
+
+  const [user, setUser] = useState({
+    id: 1,
+    name: 'John Doe',
+    phone: '1234567890',
   });
 
   const navigation = useNavigation();
@@ -54,32 +57,44 @@ const Map: React.FC = () => {
     setLatLng({ latitude, longitude })
 
     console.log('fetching location ' + JSON.stringify(currentLocation.timestamp));
-        
-    const response = await axios.get('http://192.168.0.4:8080/api/clients')
-    .catch(error => {
-      console.error('Error:', error);
-    });
-    console.log('Response from server: ', response.data);
-    const url = `http://192.168.0.4:8080/api/clients/location/${user.id}`
+    
+    }; 
+  
+  const postLocation = async () => {
+    const url = `http://192.168.0.3:8080/api/clients/location/${user.id}`
     const locationData = {
-      lat: user.lat,
-      lon: user.lon
+      lat: latLng.latitude,
+      lon: latLng.longitude 
     };
     
     axios.post(url, locationData)
     .then(response => {
-        // Handle response from server
-        console.log('Response from server:', response);
+        console.log('Response from server post:', response.data);
     })
     .catch(error => {
-        // Handle error
-        console.error('Error:', error);
+        console.error('Error 2:', error);
     });
-    }; 
+  };
+
+  const requestTaxi = async () => {
+    //send a request to the id of the clossest driver
+    
+  };
+  
+  const getAllDrivers = async () => {
+    const response = await axios.get('http://192.168.0.3:8080/api/drivers')
+    .catch(error => {
+      console.error('Error in getAllDrivers:', error);
+    });
+    setDrivers(response.data);
+
+  };
 
   useEffect(() => {
     askPermission();
     fetchLocation();
+    postLocation();
+    getAllDrivers();
     //setLatLng({ latitude: 35.82676, longitude: 10.63805 });
   }, []);
 
@@ -123,7 +138,7 @@ const Map: React.FC = () => {
       </S.WhereToContainer>
 
       <S.BottomContainer>
-        <Button onPress={() => navigation.navigate('Request')}>Request Taxi</Button>
+        <Button onPress={() => requestTaxi()}>Request Taxi</Button>
       </S.BottomContainer>
 
       <S.OptionsContainer>

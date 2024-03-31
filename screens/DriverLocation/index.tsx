@@ -14,9 +14,11 @@ import iconHome from '../../assets/home.png';
 import iconHistory from '../../assets/history.png';
 import iconCenter from '../../assets/map_center.png';
 import cab from '../../assets/cab.png';
+import marker from '../../assets/marker.png';
 import customMapStyle from '../../mapstyle.json';
 
 import * as S from './styles';
+import axios from 'axios';
 
 interface ILatLng {
   latitude: number;
@@ -28,42 +30,23 @@ const DriverMap: React.FC = () => {
     latitude: 35.82676,
     longitude: 10.63805,
   });
+  const [driver, setDriver] = useState({
+    id: 1,
+    name: 'John Doe',
+    phone: '1234567890'
+  });
 
   const [SharingLocation, setSharingLocation] = useState(false);
-  const [client, setClient] = useState<Client>();
+  const [clients, setClients] = useState([{id: 1, name: 'client1', phone: '1234567890', lat: 35.82276, lon: 10.63605}, {id: 2, name: 'client2', phone: '1234567890', lat: 35.82976, lon: 10.63805}, {id: 3, name: 'client3', phone: '1234567890', lat: 35.82176, lon: 10.63505}]);
 
-  const connect = () => {
-    console.log('connecting')
-    // const socket  = new WebSocket('ws://localhost:8080/driverLocation'); //wss://echo.websocket.org  for testing
-    // setSocket(socket);
-    // socket.onopen = () => { 
-    //   console.log('WebSocket connection established (from driver)');
-    // };
-    // socket.onerror = (error) => {
-    //   console.log('WebSocket error ' , error);
-    // };
-    const client = new Client({ 
-      brokerURL: 'ws://192.169.0.4:8080/clientLocation',
-      onConnect: () => {
-        console.log('Connected to STOMP broker');
-        client.subscribe('/app/track/client', message =>
-          console.log(`Received: ${message.body}`)
-        );
-        client.publish({ destination: '/app/track/client', body: 'First Message' });
-      },
+  const getAllClients = async () => {
+    const response = await axios.get('http://192.168.0.3:8080/api/clients')
+    .catch(error => {
+      console.error('Error 1:', error);
     });
-    client.activate();
-
-    client.onDisconnect = (frame) => {
-      console.log('Disconnected from STOMP broker');
-    };
-    client.onStompError = (frame) => {
-      console.error('STOMP protocol error:', frame.body);
-    };  
-    client.debug = (str) => {
-      console.log(str);
-    };
-  };
+    console.log('Response from server get: ', response.data);
+    //setClients(response.data);
+  };  
   
   const navigation = useNavigation();
   let mapRef: MapView | null = null;
@@ -95,18 +78,28 @@ const DriverMap: React.FC = () => {
   const subscribeToLocationUpdates = async () => {
     setSharingLocation(true);
 
-    const subscription = await Location.watchPositionAsync(options, (location) => {
-    let latitude = location.coords.latitude;
-    let longitude = location.coords.longitude;
-    setLatLng({ latitude, longitude })
-    console.log('new location from subscribeToLocationUpdates, timestamp = ' + JSON.stringify(location.timestamp)); 
-    
-    //TO DO: Send location to server
-    //socket.send(JSON.stringify(location.coords));
-    // socket.onerror = (error) => {
-    //   console.log('WebSocket error in subscribeToLocationUpdates ' , error);
-    // };
+    const subscription = await Location.watchPositionAsync(options, (location) => { //most of the time this is only called once
+      let latitude = location.coords.latitude;
+      let longitude = location.coords.longitude;
+      setLatLng({ latitude, longitude })
+      console.log('new location from subscribeToLocationUpdates, timestamp = ' + JSON.stringify(location.timestamp)); 
+      
+      //TO DO: Send location to server
+      const url = `http://192.168.0.3:8080/api/clients/location/${driver.id}`
 
+      const locationData = {
+        lat: latLng.latitude,
+        lon: latLng.longitude 
+      };
+      axios.post(url, locationData)
+      .then(response => {
+          console.log('Response from server post:', response.data);
+      })
+      .catch(error => {
+          console.error('Error 2:', error);
+      });
+      // Update the Client's location
+      getAllClients();
     }); 
     // To stop receiving updates, you can call remove() on the subscription object.
     // subscription.remove();
@@ -115,7 +108,7 @@ const DriverMap: React.FC = () => {
   useEffect(() => {
     askPermission();
     fetchLocation();
-    connect();
+    getAllClients();
     //setLatLng({ latitude: 35.82676, longitude: 10.63805 });
   }, []);
 
@@ -150,6 +143,9 @@ const DriverMap: React.FC = () => {
         <Marker coordinate={latLng} tracksViewChanges={false}>
           <Image source={cab} style={{ height: 50, width: 50 }} resizeMode="contain" />
         </Marker>
+        {clients.map(client => (
+          <Marker key={client.id}  coordinate={{latitude: client.lat, longitude: client.lon}} image={marker} tracksViewChanges={false}/>
+        ))}
       </S.Map>
 
       <S.OptionsContainer>
