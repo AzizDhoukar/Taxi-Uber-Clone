@@ -25,6 +25,8 @@ interface ILatLng {
   longitude: number;
 }
 
+const SERVER_URL = 'http://192.168.0.4';
+
 const DriverMap: React.FC = () => {
   const [latLng, setLatLng] = useState<ILatLng>({
     latitude: 35.82676,
@@ -40,7 +42,7 @@ const DriverMap: React.FC = () => {
   const [clients, setClients] = useState([{id: 1, name: 'client1', phone: '1234567890', lat: 35.82276, lon: 10.63605}, {id: 2, name: 'client2', phone: '1234567890', lat: 35.82976, lon: 10.63805}, {id: 3, name: 'client3', phone: '1234567890', lat: 35.82176, lon: 10.63505}]);
 
   const getAllClients = async () => {
-    const response = await axios.get('http://192.168.0.3:8080/api/clients')
+    const response = await axios.get(`${SERVER_URL}:8080/api/clients`)
     .catch(error => {
       console.error('Error 1:', error);
     });
@@ -85,7 +87,7 @@ const DriverMap: React.FC = () => {
       console.log('new location from subscribeToLocationUpdates, timestamp = ' + JSON.stringify(location.timestamp)); 
       
       //TO DO: Send location to server
-      const url = `http://192.168.0.3:8080/api/clients/location/${driver.id}`
+      const url = `${SERVER_URL}:8080/api/clients/location/${driver.id}`
 
       const locationData = {
         lat: latLng.latitude,

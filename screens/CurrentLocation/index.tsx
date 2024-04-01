@@ -22,7 +22,7 @@ interface ILatLng {
   latitude: number;
   longitude: number;
 }
-
+const SERVER_URL = 'http://192.168.0.4';
 
 const Map: React.FC = () => {
   const [latLng, setLatLng] = useState<ILatLng>({
@@ -61,7 +61,7 @@ const Map: React.FC = () => {
     }; 
   
   const postLocation = async () => {
-    const url = `http://192.168.0.3:8080/api/clients/location/${user.id}`
+    const url = `${SERVER_URL}:8080/api/clients/location/${user.id}`
     const locationData = {
       lat: latLng.latitude,
       lon: latLng.longitude 
@@ -82,15 +82,17 @@ const Map: React.FC = () => {
   };
   
   const getAllDrivers = async () => {
-    const response = await axios.get('http://192.168.0.3:8080/api/drivers')
+    const response = await axios.get(`${SERVER_URL}:8080/api/drivers`) 
     .catch(error => {
       console.error('Error in getAllDrivers:', error);
     });
     setDrivers(response.data);
 
-  };
+  }; 
 
   useEffect(() => {
+    console.log('SERVER_URL:', SERVER_URL);
+    console.log('APP_LOGGING', process.env.API_KEY); 
     askPermission();
     fetchLocation();
     postLocation();
