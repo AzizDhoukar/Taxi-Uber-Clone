@@ -23,7 +23,7 @@ import axios from 'axios';
 interface ILatLng {
   latitude: number;
   longitude: number;
-}
+} 
 
 const SERVER_URL = 'http://192.168.0.4';
 
@@ -87,7 +87,7 @@ const DriverMap: React.FC = () => {
       console.log('new location from subscribeToLocationUpdates, timestamp = ' + JSON.stringify(location.timestamp)); 
       
       //TO DO: Send location to server
-      const url = `${SERVER_URL}:8080/api/clients/location/${driver.id}`
+      const url = `${SERVER_URL}:8080/api/drivers/location/${driver.id}`
 
       const locationData = {
         lat: latLng.latitude,

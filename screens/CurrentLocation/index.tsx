@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { Alert, View, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
 import { Stomp, CompatClient, Client } from '@stomp/stompjs';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 import MapButton from '../../components/MapButton';
 import Button from '../../components/Button';
@@ -13,6 +14,7 @@ import iconHome from '../../assets/home.png';
 import iconHistory from '../../assets/history.png';
 import iconCenter from '../../assets/map_center.png';
 import marker from '../../assets/marker.png';
+import cab from '../../assets/cab.png';
 import customMapStyle from '../../mapstyle.json';
 
 import * as S from './styles';
@@ -22,6 +24,13 @@ interface ILatLng {
   latitude: number;
   longitude: number;
 }
+interface Driver {
+  id: number;
+  lat: number;
+  lon: number;
+  name: string;
+  phone: string;
+}
 const SERVER_URL = 'http://192.168.0.4';
 
 const Map: React.FC = () => {
@@ -30,14 +39,15 @@ const Map: React.FC = () => {
     longitude: 10.63805,
   });
 
-  const [drivers, setDrivers] = useState([{id: 1, name: 'driver1', phone: '1234567890', lat: 35.82676, lon: 10.63805}, {id: 2, name: 'driver2', phone: '1234567890', lat: 35.82676, lon: 10.63805}, {id: 3, name: 'driver3', phone: '1234567890', lat: 35.82676, lon: 10.63805}]);
+  const [pairedDriver, setPairedDriver] = useState<Driver | null>(null);
+  const [drivers, setDrivers] = useState<Driver[]>([{id: 1, name: 'driver1', phone: '1234567890', lat: 35.82276, lon: 10.63605}, {id: 2, name: 'driver2', phone: '1234567890', lat: 35.82976, lon: 10.63805}, {id: 3, name: 'driver3', phone: '1234567890', lat: 35.82176, lon: 10.63505}]);
 
   const [user, setUser] = useState({
     id: 1,
     name: 'John Doe',
     phone: '1234567890',
   });
-
+ 
   const navigation = useNavigation();
   let mapRef: MapView | null = null;
 
@@ -78,7 +88,14 @@ const Map: React.FC = () => {
 
   const requestTaxi = async () => {
     //send a request to the id of the clossest driver
-    
+    const Driver = await axios.get(`${SERVER_URL}:8080/api/clients/request/${user.id}`)
+    .catch(error => {
+        console.error('Error 3:', error);
+    });
+    setPairedDriver(Driver.data);
+    console.log('Response from the server matching request:', Driver.data);
+    console.log('new value of pairedDriver:', pairedDriver);
+    updatePairedDriver();
   };
   
   const getAllDrivers = async () => {
@@ -86,17 +103,40 @@ const Map: React.FC = () => {
     .catch(error => {
       console.error('Error in getAllDrivers:', error);
     });
-    setDrivers(response.data);
-
+    //setDrivers(response.data);
   }; 
+
+  const updatePairedDriver = async () => {
+    const Driver = await axios.get(`${SERVER_URL}:8080/api/drivers/${pairedDriver.id}`)
+    .catch((error: AxiosError) => {
+        console.error('Error 4:', error);
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.error('Server responded with status code:', error.response.status);
+          console.error('Error data:', error.response.data);
+      }
+    });
+    console.log('pairedDriver:', pairedDriver);
+    setPairedDriver(Driver.data );
+  };
 
   useEffect(() => {
     console.log('SERVER_URL:', SERVER_URL);
-    console.log('APP_LOGGING', process.env.API_KEY); 
     askPermission();
     fetchLocation();
     postLocation();
     getAllDrivers();
+    const interval = setInterval(() => {
+      if(pairedDriver === null){
+        console.log('no paired driver', pairedDriver);
+      }else{
+        updatePairedDriver();
+      }
+    }, 3000); // Repeat every 2 seconds
+
+    // Cleanup function to clear the interval when component unmounts
+    return () => clearInterval(interval);
     //setLatLng({ latitude: 35.82676, longitude: 10.63805 });
   }, []);
 
@@ -129,6 +169,12 @@ const Map: React.FC = () => {
         customMapStyle={customMapStyle}
       >
         <Marker coordinate={latLng} image={marker} tracksViewChanges={false}/>
+
+        {drivers.map(driver => (
+          <Marker key={driver.id}  coordinate={{latitude: driver.lat, longitude: driver.lon}}  tracksViewChanges={false}>
+            <Image source={cab} style={{ height: 50, width: 50 }} resizeMode="contain" />
+          </Marker>
+        ))}
       </S.Map>
 
       <S.WhereToContainer >
