@@ -18,14 +18,14 @@ import marker from '../../assets/marker.png';
 import customMapStyle from '../../mapstyle.json';
 
 import * as S from './styles';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 interface ILatLng {
   latitude: number;
   longitude: number;
 } 
 
-const SERVER_URL = 'http://192.168.0.4';
+const SERVER_URL = '192.168.0.4';
 
 const DriverMap: React.FC = () => {
   const [latLng, setLatLng] = useState<ILatLng>({
@@ -42,8 +42,9 @@ const DriverMap: React.FC = () => {
   const [clients, setClients] = useState([{id: 1, name: 'client1', phone: '1234567890', lat: 35.82276, lon: 10.63605}, {id: 2, name: 'client2', phone: '1234567890', lat: 35.82976, lon: 10.63805}, {id: 3, name: 'client3', phone: '1234567890', lat: 35.82176, lon: 10.63505}]);
 
   const webSocket = async () => {
+    /*
     console.log('in web socket function');
-    const socket = SockJS('ws://192.168.0.4:8080/driverLocation');
+    const socket = SockJS(`ws://${SERVER_URL}:8080/ws`);
     const stompClient = Stomp.over(socket);
     stompClient.connect({}, function(frame : any) {
       console.log('Connected: ' + frame);
@@ -51,12 +52,28 @@ const DriverMap: React.FC = () => {
         console.log('subscription OK', message.body);
       });
     }); 
+    */
+    let socket = new SockJS('/ws');
+    let stompClient = null;
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function whenConnected() {
+      console.log('sending and receiving data Zzzzzzz');
+
+      // Subscribe to the Public
+      stompClient.subscribe('/app/getData', function whenMessageReceived(payload) {
+        let message = JSON.parse(payload.body);
+        console.log(message);
+    });
+
+      // Tell your location to the server
+      stompClient.send( "/app/saveLocation", {}, 'getLocationBean()' );
+    });
   }
 
   const getAllClients = async () => {
-    const response = await axios.get(`${SERVER_URL}:8080/api/clients`)
-    .catch(error => {
-      console.error('Error 1:', error);
+    const response = await axios.get(`http://${SERVER_URL}:8080/api/clients`)
+    .catch((error : AxiosError) => {
+      console.error('Error 1:', error.response);
     });
     console.log('Response from server get: ', response.data);
     //setClients(response.data);
@@ -99,7 +116,7 @@ const DriverMap: React.FC = () => {
       console.log('new location from subscribeToLocationUpdates, timestamp = ' + JSON.stringify(location.timestamp)); 
       
       //TO DO: Send location to server
-      const url = `${SERVER_URL}:8080/api/drivers/location/${driver.id}`
+      const url = `http://${SERVER_URL}:8080/api/drivers/location/${driver.id}`
  
       const locationData = {
         lat: latLng.latitude,
