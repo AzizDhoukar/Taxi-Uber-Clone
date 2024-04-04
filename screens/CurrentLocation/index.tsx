@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, View, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -9,16 +8,13 @@ import axios, { AxiosError } from 'axios';
 
 import MapButton from '../../components/MapButton';
 import Button from '../../components/Button';
+import MapComponent from '../../components/MapComponent/MapComponent';
 
 import iconHome from '../../assets/home.png';
 import iconHistory from '../../assets/history.png';
 import iconCenter from '../../assets/map_center.png';
-import marker from '../../assets/marker.png';
-import cab from '../../assets/cab.png';
-import customMapStyle from '../../mapstyle.json';
 
 import * as S from './styles';
-import SockJS from 'sockjs-client';
 
 interface ILatLng {
   latitude: number;
@@ -80,7 +76,7 @@ const Map: React.FC = () => {
     axios.post(url, locationData)
     .then(response => {
         console.log('Response from server post:', response.data);
-    })
+    }) 
     .catch(error => {
         console.error('Error 2:', error);
     });
@@ -97,7 +93,7 @@ const Map: React.FC = () => {
     console.log('new value of pairedDriver:', pairedDriver);
     updatePairedDriver();
   };
-  
+   
   const getAllDrivers = async () => {
     const response = await axios.get(`${SERVER_URL}:8080/api/drivers`) 
     .catch(error => {
@@ -133,8 +129,8 @@ const Map: React.FC = () => {
       }else{
         updatePairedDriver();
       }
-    }, 3000); // Repeat every 2 seconds
-
+    }, 3000); // Repeat every n seconds
+ 
     // Cleanup function to clear the interval when component unmounts
     return () => clearInterval(interval);
     //setLatLng({ latitude: 35.82676, longitude: 10.63805 });
@@ -153,30 +149,8 @@ const Map: React.FC = () => {
 
   return (
     <S.Container>
-      <S.Map
-        ref={map => {
-          mapRef = map;
-        }}
-        region={{
-          ...latLng,
-          latitudeDelta: 0.0143,
-          longitudeDelta: 0.0134,
-        }}
-        loadingEnabled
-        showsCompass={false}
-        showsPointsOfInterest={false}
-        showsBuildings={false}
-        customMapStyle={customMapStyle}
-      >
-        <Marker coordinate={latLng} image={marker} tracksViewChanges={false}/>
-
-        {drivers.map(driver => (
-          <Marker key={driver.id}  coordinate={{latitude: driver.lat, longitude: driver.lon}}  tracksViewChanges={false}>
-            <Image source={cab} style={{ height: 50, width: 50 }} resizeMode="contain" />
-          </Marker>
-        ))}
-      </S.Map>
-
+      <MapComponent latLng={latLng} clients={drivers} mapRef={mapRef} />
+ 
       <S.WhereToContainer >
             <S.From>From: curent position</S.From>
             <S.ToContainer>

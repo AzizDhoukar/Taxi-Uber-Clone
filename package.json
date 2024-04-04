@@ -38,17 +38,19 @@
     "react-native-star-rating": "^1.1.0",
     "react-native-web": "~0.19.6",
     "react-native-websocket": "^1.0.2",
+    "react-stomp": "^5.1.0",
     "sockjs": "^0.3.24",
     "sockjs-client": "^1.6.1",
+    "stomp-websocket": "^2.3.4-next",
     "stompjs": "^2.3.3",
-    "styled-components": "^6.1.8",
-    "typescript": "^5.3.0"
+    "styled-components": "^6.1.8"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@types/react-native-dotenv": "^0.2.2",
     "@types/sockjs-client": "^1.5.4",
-    "@types/stompjs": "^2.3.9"
+    "@types/stompjs": "^2.3.9",
+    "typescript": "^5.4.3"
   },
   "private": true
 }

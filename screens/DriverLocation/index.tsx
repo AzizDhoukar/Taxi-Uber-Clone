@@ -41,6 +41,18 @@ const DriverMap: React.FC = () => {
   const [SharingLocation, setSharingLocation] = useState(false);
   const [clients, setClients] = useState([{id: 1, name: 'client1', phone: '1234567890', lat: 35.82276, lon: 10.63605}, {id: 2, name: 'client2', phone: '1234567890', lat: 35.82976, lon: 10.63805}, {id: 3, name: 'client3', phone: '1234567890', lat: 35.82176, lon: 10.63505}]);
 
+  const webSocket = async () => {
+    console.log('in web socket function');
+    const socket = SockJS('ws://192.168.0.4:8080/driverLocation');
+    const stompClient = Stomp.over(socket);
+    stompClient.connect({}, function(frame : any) {
+      console.log('Connected: ' + frame);
+      stompClient.subscribe('/track/driver', function(message) {
+        console.log('subscription OK', message.body);
+      });
+    }); 
+  }
+
   const getAllClients = async () => {
     const response = await axios.get(`${SERVER_URL}:8080/api/clients`)
     .catch(error => {
@@ -88,20 +100,18 @@ const DriverMap: React.FC = () => {
       
       //TO DO: Send location to server
       const url = `${SERVER_URL}:8080/api/drivers/location/${driver.id}`
-
+ 
       const locationData = {
         lat: latLng.latitude,
         lon: latLng.longitude 
       };
       axios.post(url, locationData)
       .then(response => {
-          console.log('Response from server post:', response.data);
+          console.log('Response for post location:', response.data);
       })
       .catch(error => {
           console.error('Error 2:', error);
       });
-      // Update the Client's location
-      getAllClients();
     }); 
     // To stop receiving updates, you can call remove() on the subscription object.
     // subscription.remove();
@@ -111,6 +121,7 @@ const DriverMap: React.FC = () => {
     askPermission();
     fetchLocation();
     getAllClients();
+    webSocket();
     //setLatLng({ latitude: 35.82676, longitude: 10.63805 });
   }, []);
 
