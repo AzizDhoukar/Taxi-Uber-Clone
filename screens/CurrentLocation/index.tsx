@@ -122,7 +122,7 @@ const Map: React.FC = () => {
     askPermission();
     fetchLocation();
     postLocation();
-    getAllDrivers();
+    getAllDrivers(); 
     const interval = setInterval(() => {
       if(pairedDriver === null){
         console.log('no paired driver', pairedDriver);

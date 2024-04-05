@@ -15,6 +15,7 @@ import iconHistory from '../../assets/history.png';
 import iconCenter from '../../assets/map_center.png';
 import cab from '../../assets/cab.png';
 import marker from '../../assets/marker.png';
+import marker2 from '../../assets/marker2x.png';
 import customMapStyle from '../../mapstyle.json';
 
 import * as S from './styles';
@@ -24,6 +25,14 @@ interface ILatLng {
   latitude: number;
   longitude: number;
 } 
+interface Driver {
+  id: number;
+  name: string;
+  phone: string;
+  lat: number;
+  lon: number;
+  clientId: number;
+}
 
 const SERVER_URL = '192.168.0.4';
 
@@ -32,15 +41,18 @@ const DriverMap: React.FC = () => {
     latitude: 35.82676,
     longitude: 10.63805,
   });
-  const [driver, setDriver] = useState({
+  const [driver, setDriver] = useState<Driver>({
     id: 1,
     name: 'John Doe',
-    phone: '1234567890'
+    phone: '1234567890',
+    lat: 35.82676,
+    lon: 10.63805,
+    clientId: 1
   });
 
   const [SharingLocation, setSharingLocation] = useState(false);
   const [clients, setClients] = useState([{id: 1, name: 'client1', phone: '1234567890', lat: 35.82276, lon: 10.63605}, {id: 2, name: 'client2', phone: '1234567890', lat: 35.82976, lon: 10.63805}, {id: 3, name: 'client3', phone: '1234567890', lat: 35.82176, lon: 10.63505}]);
-
+  const [pairedClient, setPairedClient] = useState<any | null>({id: 4, name: 'client4', phone: '1234567890', lat: 35.82376, lon: 10.63905});
   const webSocket = async () => {
     /*
     console.log('in web socket function');
@@ -70,15 +82,29 @@ const DriverMap: React.FC = () => {
     });
   }
 
-  const getAllClients = async () => {
-    const response = await axios.get(`http://${SERVER_URL}:8080/api/clients`)
+  const getClient = async () => {
+    const response = await axios.get(`http://${SERVER_URL}:8080/api/drivers/${driver.id}`)
     .catch((error : AxiosError) => {
       console.error('Error 1:', error.response);
     });
-    console.log('Response from server get: ', response.data);
+    const responseObject = response.data;
+    console.log('Response from server get: ', responseObject);
+
+    setDriver(responseObject);
+    if(responseObject.clientId != null){
+      const response = await axios.get(`http://${SERVER_URL}:8080/api/clients/${responseObject.clientId.id}`)
+      .catch((error : AxiosError) => {
+        console.error('Error 2:', error.response);
+      });
+      setPairedClient(response.data);
+    }
     //setClients(response.data);
   };  
   
+  const updateClient = async () => {
+    
+  }
+
   const navigation = useNavigation();
   let mapRef: MapView | null = null;
 
@@ -137,8 +163,16 @@ const DriverMap: React.FC = () => {
   useEffect(() => {
     askPermission();
     fetchLocation();
-    getAllClients();
-    webSocket();
+    const interval = setInterval(() => {
+      if(SharingLocation){
+        getClient();
+        updateClient();
+      }
+    }, 3000); // Repeat every n seconds
+
+
+    return () => clearInterval(interval);
+    //webSocket();
     //setLatLng({ latitude: 35.82676, longitude: 10.63805 });
   }, []);
 
@@ -176,6 +210,11 @@ const DriverMap: React.FC = () => {
         {clients.map(client => (
           <Marker key={client.id}  coordinate={{latitude: client.lat, longitude: client.lon}} image={marker} tracksViewChanges={false}/>
         ))}
+        {(pairedClient != null) && <>
+          <Marker coordinate={{latitude: pairedClient.lat, longitude: pairedClient.lon}} tracksViewChanges={true}>
+            <Image source={marker} style={{ height: 80, width: 50 }} resizeMode="contain" />
+          </Marker>
+        </>}
       </S.Map>
 
       <S.OptionsContainer>
