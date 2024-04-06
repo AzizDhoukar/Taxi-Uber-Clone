@@ -21,7 +21,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.dhoukar.mytaxiapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -30,9 +31,16 @@
       [
         "expo-font",
         {
-          "fonts": ["node_modules/@expo-google-fonts/open-sans"]
+          "fonts": [
+            "node_modules/@expo-google-fonts/open-sans"
+          ]
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "31d37c75-9609-4061-8494-e017d462218c"
+      }
+    }
   }
 }
