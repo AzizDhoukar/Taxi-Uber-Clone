@@ -15,7 +15,6 @@ import iconHistory from '../../assets/history.png';
 import iconCenter from '../../assets/map_center.png';
 import cab from '../../assets/cab.png';
 import marker from '../../assets/marker.png';
-import marker2 from '../../assets/marker2x.png';
 import customMapStyle from '../../mapstyle.json';
 
 import * as S from './styles';
@@ -33,7 +32,13 @@ interface Driver {
   lon: number;
   clientId: number;
 }
-
+interface Client {
+  id: number;
+  name: string;
+  phone: string;
+  lat: number;
+  lon: number;
+}
 const SERVER_URL = '192.168.0.4';
 
 const DriverMap: React.FC = () => {
@@ -51,8 +56,8 @@ const DriverMap: React.FC = () => {
   });
 
   const [SharingLocation, setSharingLocation] = useState(false);
-  const [clients, setClients] = useState([{id: 1, name: 'client1', phone: '1234567890', lat: 35.82276, lon: 10.63605}, {id: 2, name: 'client2', phone: '1234567890', lat: 35.82976, lon: 10.63805}, {id: 3, name: 'client3', phone: '1234567890', lat: 35.82176, lon: 10.63505}]);
-  const [pairedClient, setPairedClient] = useState<any | null>({id: 4, name: 'client4', phone: '1234567890', lat: 35.82376, lon: 10.63905});
+  const [clients, setClients] = useState<Client[]>([{id: 1, name: 'client1', phone: '1234567890', lat: 35.82276, lon: 10.63605}, {id: 2, name: 'client2', phone: '1234567890', lat: 35.82976, lon: 10.63805}, {id: 3, name: 'client3', phone: '1234567890', lat: 35.82176, lon: 10.63505}]);
+  const [pairedClient, setPairedClient] = useState<Client | null>(null);
   const webSocket = async () => {
     /*
     console.log('in web socket function');
@@ -97,10 +102,11 @@ const DriverMap: React.FC = () => {
         console.error('Error 2:', error.response);
       });
       setPairedClient(response.data);
+      console.log('paired client: ', response.data);
     }
     //setClients(response.data);
   };  
-  
+
   const updateClient = async () => {
     
   }
@@ -163,6 +169,7 @@ const DriverMap: React.FC = () => {
   useEffect(() => {
     askPermission();
     fetchLocation();
+    getClient();
     const interval = setInterval(() => {
       if(SharingLocation){
         getClient();
@@ -207,10 +214,11 @@ const DriverMap: React.FC = () => {
         <Marker coordinate={latLng} tracksViewChanges={false}>
           <Image source={cab} style={{ height: 50, width: 50 }} resizeMode="contain" />
         </Marker>
-        {clients.map(client => (
-          <Marker key={client.id}  coordinate={{latitude: client.lat, longitude: client.lon}} image={marker} tracksViewChanges={false}/>
-        ))}
-        {(pairedClient != null) && <>
+        {pairedClient == null ? <>
+            {clients.map((client) => (
+              <Marker key={client.id}  coordinate={{latitude: client.lat, longitude: client.lon}} image={marker} tracksViewChanges={false}/>
+            ))}
+        </> : <>
           <Marker coordinate={{latitude: pairedClient.lat, longitude: pairedClient.lon}} tracksViewChanges={true}>
             <Image source={marker} style={{ height: 80, width: 50 }} resizeMode="contain" />
           </Marker>

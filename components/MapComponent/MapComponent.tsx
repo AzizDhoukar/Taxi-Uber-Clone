@@ -7,8 +7,14 @@ import * as S from './styles';
 import marker from '../../assets/marker.png';
 import cab from '../../assets/cab.png';
 import customMapStyle from '../../mapstyle.json';
-
-const MapComponent = ({ latLng, clients, mapRef }) => {
+interface Driver {
+    id: number;
+    lat: number;
+    lon: number;
+    name: string;
+    phone: string;
+  }
+const MapComponent = ({ latLng, drivers, mapRef, pairedDriver }) => {
     return (
         <S.Map 
         ref={map => {
@@ -24,12 +30,19 @@ const MapComponent = ({ latLng, clients, mapRef }) => {
         showsPointsOfInterest={false}
         showsBuildings={false}
         customMapStyle={customMapStyle}>
-            <Marker coordinate={latLng} tracksViewChanges={false}>
+        <Marker coordinate={latLng} image={marker} tracksViewChanges={false}/>
+        {pairedDriver == null ? <>
+            {drivers.map((driver : Driver) => (
+                <Marker key={driver.id} coordinate={{latitude: driver.lat, longitude: driver.lon}} tracksViewChanges={false}>
+                    <Image source={cab} style={{ height: 50, width: 50 }} resizeMode="contain" />
+                </Marker>
+            ))}
+        </> : <>
+            <Marker key={pairedDriver.id} coordinate={{latitude: pairedDriver.lat, longitude: pairedDriver.lon}} tracksViewChanges={true}>
                 <Image source={cab} style={{ height: 50, width: 50 }} resizeMode="contain" />
             </Marker>
-            {clients.map(client => (
-                <Marker key={client.id}  coordinate={{latitude: client.lat, longitude: client.lon}} image={marker} tracksViewChanges={false}/>
-            ))}
+        </>}
+            
         </S.Map>
     );
 };

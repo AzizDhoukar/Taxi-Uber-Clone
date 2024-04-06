@@ -13,6 +13,8 @@ import MapComponent from '../../components/MapComponent/MapComponent';
 import iconHome from '../../assets/home.png';
 import iconHistory from '../../assets/history.png';
 import iconCenter from '../../assets/map_center.png';
+import marker from '../../assets/marker.png';
+import cab from '../../assets/cab.png';
 
 import * as S from './styles';
 
@@ -79,7 +81,7 @@ const Map: React.FC = () => {
     }) 
     .catch(error => {
         console.error('Error 2:', error);
-    });
+    }); 
   };
 
   const requestTaxi = async () => {
@@ -90,10 +92,10 @@ const Map: React.FC = () => {
     });
     setPairedDriver(Driver.data);
     console.log('Response from the server matching request:', Driver.data);
-    console.log('new value of pairedDriver:', pairedDriver);
-    updatePairedDriver();
+    //console.log('new value of pairedDriver:', pairedDriver);
+    //updatePairedDriver();
   };
-   
+
   const getAllDrivers = async () => {
     const response = await axios.get(`${SERVER_URL}:8080/api/drivers`) 
     .catch(error => {
@@ -115,7 +117,8 @@ const Map: React.FC = () => {
     });
     console.log('pairedDriver:', pairedDriver);
     setPairedDriver(Driver.data );
-  };
+
+  }; 
 
   useEffect(() => {
     console.log('SERVER_URL:', SERVER_URL);
@@ -149,7 +152,7 @@ const Map: React.FC = () => {
 
   return (
     <S.Container>
-      <MapComponent latLng={latLng} clients={drivers} mapRef={mapRef} />
+      <MapComponent latLng={latLng} drivers={drivers} mapRef={mapRef} pairedDriver={pairedDriver}/>
  
       <S.WhereToContainer >
             <S.From>From: curent position</S.From>
