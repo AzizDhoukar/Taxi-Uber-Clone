@@ -29,7 +29,7 @@ interface Driver {
   name: string;
   phone: string;
 }
-const SERVER_URL = 'http://192.168.0.4';
+const SERVER_URL = 'http://192.168.0.2';
 
 const Map: React.FC = () => {
   const [latLng, setLatLng] = useState<ILatLng>({
@@ -77,7 +77,7 @@ const Map: React.FC = () => {
     
     axios.post(url, locationData)
     .then(response => {
-        console.log('Response from server post:', response.data);
+        console.log('Response from server after sending location:', response.data);
     }) 
     .catch(error => {
         console.error('Error 2:', error);
@@ -128,7 +128,7 @@ const Map: React.FC = () => {
     getAllDrivers(); 
     const interval = setInterval(() => {
       if(pairedDriver === null){
-        console.log('no paired driver', pairedDriver);
+        //console.log('no paired driver', pairedDriver);
       }else{
         updatePairedDriver();
       }

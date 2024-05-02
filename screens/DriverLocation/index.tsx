@@ -4,7 +4,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
-import { Stomp, CompatClient, Client, Versions } from '@stomp/stompjs';
+import { Stomp, CompatClient, Versions } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 import MapButton from '../../components/MapButton';
@@ -39,7 +39,7 @@ interface Client {
   lat: number;
   lon: number;
 }
-const SERVER_URL = '192.168.0.4';
+const SERVER_URL = '192.168.0.2';
 
 const DriverMap: React.FC = () => {
   const [latLng, setLatLng] = useState<ILatLng>({
@@ -93,7 +93,7 @@ const DriverMap: React.FC = () => {
       console.error('Error 1:', error.response);
     });
     const responseObject = response.data;
-    console.log('Response from server get: ', responseObject);
+    console.log('Response from server qurrent state: ', responseObject);
 
     setDriver(responseObject);
     if(responseObject.clientId != null){
@@ -144,7 +144,6 @@ const DriverMap: React.FC = () => {
     const subscription = await Location.watchPositionAsync(options, (location) => { //most of the time this is only called once
       let latitude = location.coords.latitude;
       let longitude = location.coords.longitude;
-      setLatLng({ latitude, longitude })
       console.log('new location from subscribeToLocationUpdates, timestamp = ' + JSON.stringify(location.timestamp)); 
       
       //TO DO: Send location to server
@@ -156,12 +155,12 @@ const DriverMap: React.FC = () => {
       };
       axios.post(url, locationData)
       .then(response => {
-          console.log('Response for post location:', response.data);
+          console.log('Response sending location to server :', response.data);
       })
       .catch(error => {
           console.error('Error 2:', error);
       });
-    }); 
+    });
     // To stop receiving updates, you can call remove() on the subscription object.
     // subscription.remove();
   };
@@ -173,7 +172,7 @@ const DriverMap: React.FC = () => {
     const interval = setInterval(() => {
       if(SharingLocation){
         getClient();
-        updateClient();
+        updateClient(); 
       }
     }, 3000); // Repeat every n seconds
 
